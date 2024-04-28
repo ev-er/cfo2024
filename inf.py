@@ -1,8 +1,11 @@
+import time
+
 import pandas as pd
 import numpy as np
 import torch
 import bert_dataset
 import bert_classifier
+import os.path
 
 
 MODEL_PATH = './bert.pt'
@@ -51,13 +54,25 @@ def load_model():
     model.model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
     return model
     
-
-def predict(model, text):    
+def predict(model, text):
     answer = answer_class[model.predict(text)]
     return answer
 
+def lissener():
+    while True:
+        if os.path.exists('question.txt'):
+            break
+        time.sleep(0.01)
+    with open('question.txt', 'r') as f:
+        question = f.read()
+    os.remove('question.txt')
+    print("Question: ", question)
+    answer = predict(model, question)
+    with open('answer.txt', 'w') as f:
+        f.write(answer)
+    print("Answer: ", answer)
+    lissener()
+
 if __name__ == '__main__':
-    
     model = load_model()
-    print(predict(model, 'Возможно ли получить налоговый вычет за прохождение ваших курсов?'))    
-    
+    lissener()
